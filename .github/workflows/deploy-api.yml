@@ -1,22 +1,29 @@
-name: Deploy API
+name: 🚀 Deploy API
 on:
   push:
     branches: [main]
     paths: ["backend/**"]
+
 jobs:
-  deploy:
+  deploy_api:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Login to Azure
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: 🔐 Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Setup .NET
+
+      - name: ⚙️ Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
-      - name: Build and Deploy API
+
+      - name: 🏗️ Build and Deploy API
         run: |
           cd backend/PhotoUpload.API
           dotnet publish -c Release -o ./publish
