@@ -1,0 +1,23 @@
+name: Deploy API
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**"]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+      - name: Build and Deploy API
+        run: |
+          cd backend/PhotoUpload.API
+          dotnet publish -c Release -o ./publish
+          az webapp deploy --resource-group photo-upload-rg --name photo-api-8190 --src-path ./publish
