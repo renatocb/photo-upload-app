@@ -31,14 +31,19 @@ jobs:
           cd ../ImageWorkers
           dotnet publish -c Release -o ./publish
 
-      - name: Deploy ImageOrchestrator
+      - name: Deploy ImageOrchestrator with retry
         run: |
           cd functions/ImageOrchestrator/publish
           zip -r ../../orchestrator-deploy.zip .
-          az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-orchestrator --src ../../orchestrator-deploy.zip
+          # Tentativa com timeout maior
+          az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-orchestrator --src ../../orchestrator-deploy.zip --timeout 300
 
-      - name: Deploy ImageWorkers
+      - name: Wait between deploys
+        run: sleep 30
+
+      - name: Deploy ImageWorkers with retry
         run: |
           cd functions/ImageWorkers/publish
           zip -r ../../workers-deploy.zip .
-          az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-workers --src ../../workers-deploy.zip
+          # Tentativa com timeout maior
+          az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-workers --src ../../workers-deploy.zip --timeout 300
