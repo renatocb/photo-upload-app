@@ -1,36 +1,40 @@
-name: 🚀 Deploy Functions
+name: Deploy Functions
 on:
   push:
     branches: [main]
-    paths: ['functions/**']
+    paths: ["functions/**"]
 
 jobs:
   deploy_functions:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      - name: 🔐 Login to Azure
+      - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: ⚙️ Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
 
-      - name: 🏗️ Deploy ImageOrchestrator
+      - name: Deploy ImageOrchestrator
         run: |
           cd functions/ImageOrchestrator
           dotnet publish -c Release -o ./publish
-          az functionapp deploy --resource-group photo-upload-rg --name photo-orchestrator --src-path ./publish
+          cd publish
+          zip -r ../orchestrator-deploy.zip .
+          az functionapp deploy --resource-group photo-upload-rg --name photo-orchestrator --src-path "../orchestrator-deploy.zip" --type zip
 
-      - name: 🏗️ Deploy ImageWorkers
+      - name: Deploy ImageWorkers
         run: |
           cd functions/ImageWorkers
           dotnet publish -c Release -o ./publish
-          az functionapp deploy --resource-group photo-upload-rg --name photo-workers --src-path ./publish
+          cd publish
+          zip -r ../workers-deploy.zip .
+          az functionapp deploy --resource-group photo-upload-rg --name photo-workers --src-path "../workers-deploy.zip" --type zip
