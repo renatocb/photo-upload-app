@@ -24,18 +24,21 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Deploy ImageOrchestrator
+      - name: Build Functions
         run: |
           cd functions/ImageOrchestrator
           dotnet publish -c Release -o ./publish
-          cd publish
-          zip -r ../orchestrator-deploy.zip .
-          az functionapp deploy --resource-group photo-upload-rg --name photo-orchestrator --src-path "../orchestrator-deploy.zip" --type zip
+          cd ../ImageWorkers
+          dotnet publish -c Release -o ./publish
+
+      - name: Deploy ImageOrchestrator
+        run: |
+          cd functions/ImageOrchestrator/publish
+          zip -r ../../orchestrator-deploy.zip .
+          az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-orchestrator --src ../../orchestrator-deploy.zip
 
       - name: Deploy ImageWorkers
         run: |
-          cd functions/ImageWorkers
-          dotnet publish -c Release -o ./publish
-          cd publish
-          zip -r ../workers-deploy.zip .
-          az functionapp deploy --resource-group photo-upload-rg --name photo-workers --src-path "../workers-deploy.zip" --type zip
+          cd functions/ImageWorkers/publish
+          zip -r ../../workers-deploy.zip .
+          az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-workers --src ../../workers-deploy.zip
