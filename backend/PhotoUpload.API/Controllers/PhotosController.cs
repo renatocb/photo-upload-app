@@ -84,10 +84,15 @@ namespace PhotoUpload.API.Controllers
             var blobs = new List<string>();
 
             var containerClient = _blobServiceClient.GetBlobContainerClient("photos");
+
             await foreach (var blobItem in containerClient.GetBlobsAsync(prefix: userId))
             {
-                var blobClient = containerClient.GetBlobClient(blobItem.Name);
-                blobs.Add(blobClient.Uri.ToString());
+                // ⬇️ FILTRAR - pegar só arquivos na RAIZ da pasta user123/
+                if (!blobItem.Name.Contains("/") || blobItem.Name.Count(c => c == '/') == 1)
+                {
+                    var blobClient = containerClient.GetBlobClient(blobItem.Name);
+                    blobs.Add(blobClient.Uri.ToString());
+                }
             }
 
             return Ok(blobs);
