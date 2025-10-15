@@ -29,15 +29,11 @@ function App() {
     formData.append("file", selectedFile);
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/api/photos/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/api/photos/upload`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       setMessage(
         "Upload realizado com sucesso! A imagem está sendo processada."
