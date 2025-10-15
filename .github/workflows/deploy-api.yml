@@ -27,4 +27,6 @@ jobs:
         run: |
           cd backend/PhotoUpload.API
           dotnet publish -c Release -o ./publish
-          az webapp deploy --resource-group photo-upload-rg --name photo-api-8190 --src-path ./publish
+          cd publish
+          zip -r ../api-deploy.zip .
+          az webapp deploy --resource-group photo-upload-rg --name photo-api-8190 --src-path "../api-deploy.zip" --type zip
