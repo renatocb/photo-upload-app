@@ -13,28 +13,38 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - name: Install dependencies
+
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: SonarCloud Begin Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          cd backend/PhotoUpload.API
-          dotnet restore
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner begin /k:"renatocb_photo-upload-api" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0"
+
       - name: Build Solution
         run: |
           cd backend/PhotoUpload.API
           dotnet build --no-incremental
+
       - name: Run Tests
         run: |
           cd backend/PhotoUpload.API
           dotnet test --no-build --verbosity normal
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
-        with:
-          projectBaseDir: backend/PhotoUpload.API
+
+      - name: SonarCloud End Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
   deploy_api:
     name: Deploy API
