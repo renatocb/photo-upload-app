@@ -1,4 +1,5 @@
 name: Deploy API
+
 on:
   push:
     branches: [main]
@@ -6,7 +7,49 @@ on:
   workflow_dispatch:
 
 jobs:
+  sonarcloud_analysis:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install dependencies
+        run: |
+          cd backend/PhotoUpload.API
+          dotnet restore
+
+      - name: SonarCloud Begin Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: ${{ secrets.SONAR_ORG }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          token: ${{ secrets.SONAR_TOKEN }}
+          scannerMode: 'MSBuild'
+
+      - name: Build Solution
+        run: |
+          cd backend/PhotoUpload.API
+          dotnet build --no-incremental
+
+      - name: Run Tests
+        run: |
+          cd backend/PhotoUpload.API
+          dotnet test --no-build --verbosity normal
+
+      - name: SonarCloud End Analysis
+        run: |
+          cd backend/PhotoUpload.API
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
   deploy_api:
+    name: Deploy API
+    needs: sonarcloud_analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,7 +66,7 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
-
+          
       - name: Build and Deploy API
         run: |
           cd backend/PhotoUpload.API

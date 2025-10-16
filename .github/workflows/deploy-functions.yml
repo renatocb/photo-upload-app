@@ -1,4 +1,5 @@
 name: Deploy Functions
+
 on:
   push:
     branches: [main]
@@ -6,44 +7,106 @@ on:
   workflow_dispatch:
 
 jobs:
+  sonarcloud_analysis_orchestrator:
+    name: SonarCloud Analysis - Orchestrator
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install dependencies
+        run: |
+          cd functions/ImageOrchestrator
+          dotnet restore
+      - name: SonarCloud Begin Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: ${{ secrets.SONAR_ORG }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          token: ${{ secrets.SONAR_TOKEN }}
+          scannerMode: 'MSBuild'
+      - name: Build Solution
+        run: |
+          cd functions/ImageOrchestrator
+          dotnet build --no-incremental
+      - name: Run Tests (if any)
+        run: |
+          cd functions/ImageOrchestrator
+          dotnet test --no-build --verbosity normal || true
+      - name: SonarCloud End Analysis
+        run: |
+          cd functions/ImageOrchestrator
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+  sonarcloud_analysis_workers:
+    name: SonarCloud Analysis - Workers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+      - name: Install dependencies
+        run: |
+          cd functions/ImageWorkers
+          dotnet restore
+      - name: SonarCloud Begin Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+          organization: ${{ secrets.SONAR_ORG }}
+          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
+          token: ${{ secrets.SONAR_TOKEN }}
+          scannerMode: 'MSBuild'
+      - name: Build Solution
+        run: |
+          cd functions/ImageWorkers
+          dotnet build --no-incremental
+      - name: Run Tests (if any)
+        run: |
+          cd functions/ImageWorkers
+          dotnet test --no-build --verbosity normal || true
+      - name: SonarCloud End Analysis
+        run: |
+          cd functions/ImageWorkers
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
   deploy_functions:
+    name: Deploy Functions
+    needs: [sonarcloud_analysis_orchestrator, sonarcloud_analysis_workers]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
-
       - name: Build Functions
         run: |
           cd functions/ImageOrchestrator
           dotnet publish -c Release -o ./publish
           cd ../ImageWorkers
           dotnet publish -c Release -o ./publish
-
       - name: Deploy ImageOrchestrator with retry
         run: |
           cd functions/ImageOrchestrator/publish
           zip -r ../../orchestrator-deploy.zip .
-          # Tentativa com timeout maior
           az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-orchestrator --src ../../orchestrator-deploy.zip --timeout 300
-
       - name: Wait between deploys
         run: sleep 30
-
       - name: Deploy ImageWorkers with retry
         run: |
           cd functions/ImageWorkers/publish
           zip -r ../../workers-deploy.zip .
-          # Tentativa com timeout maior
           az functionapp deployment source config-zip --resource-group photo-upload-rg --name photo-workers --src ../../workers-deploy.zip --timeout 300

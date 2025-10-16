@@ -1,4 +1,5 @@
 name: Deploy Frontend
+
 on:
   push:
     branches: [main]
@@ -6,30 +7,59 @@ on:
   workflow_dispatch:
 
 jobs:
+  sonarcloud_analysis:
+    name: SonarCloud Analysis Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/photo-upload-web
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      - name: Install dependencies
+        run: |
+          npm ci || npm install
+      - name: Run tests with coverage
+        run: |
+          npm test -- --watchAll=false --coverage || true
+      - name: Upload coverage to SonarCloud (if present)
+        run: |
+          npx sonar-scanner \
+            -Dsonar.organization=${{ secrets.SONAR_ORG }} \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY_FRONTEND }} \
+            -Dsonar.sources=src \
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
   deploy_frontend:
+    name: Deploy Frontend
+    needs: sonarcloud_analysis
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      - name: Setup Node.js
+      - name: Use Node.js 18.x
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
-
+          node-version: '18'
+          cache: 'npm'
       - name: Install and build
         run: |
           cd frontend/photo-upload-web
-          npm install
+          npm ci || npm install
           npm run build
-
       - name: List build files
         run: |
           cd frontend/photo-upload-web
           ls -la build/
-
       - name: Deploy to Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
         with:
