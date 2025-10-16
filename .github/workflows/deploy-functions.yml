@@ -21,13 +21,6 @@ jobs:
         run: |
           cd functions/ImageOrchestrator
           dotnet restore
-      - name: SonarCloud Begin Analysis
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          organization: ${{ secrets.SONAR_ORG }}
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          token: ${{ secrets.SONAR_TOKEN }}
-          scannerMode: 'MSBuild'
       - name: Build Solution
         run: |
           cd functions/ImageOrchestrator
@@ -36,10 +29,12 @@ jobs:
         run: |
           cd functions/ImageOrchestrator
           dotnet test --no-build --verbosity normal || true
-      - name: SonarCloud End Analysis
-        run: |
-          cd functions/ImageOrchestrator
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        with:
+          projectBaseDir: functions/ImageOrchestrator
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   sonarcloud_analysis_workers:
     name: SonarCloud Analysis - Workers
@@ -55,13 +50,6 @@ jobs:
         run: |
           cd functions/ImageWorkers
           dotnet restore
-      - name: SonarCloud Begin Analysis
-        uses: SonarSource/sonarcloud-github-action@master
-        with:
-          organization: ${{ secrets.SONAR_ORG }}
-          projectKey: ${{ secrets.SONAR_PROJECT_KEY }}
-          token: ${{ secrets.SONAR_TOKEN }}
-          scannerMode: 'MSBuild'
       - name: Build Solution
         run: |
           cd functions/ImageWorkers
@@ -70,10 +58,12 @@ jobs:
         run: |
           cd functions/ImageWorkers
           dotnet test --no-build --verbosity normal || true
-      - name: SonarCloud End Analysis
-        run: |
-          cd functions/ImageWorkers
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        with:
+          projectBaseDir: functions/ImageWorkers
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   deploy_functions:
     name: Deploy Functions
