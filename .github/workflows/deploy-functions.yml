@@ -17,24 +17,24 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - name: Install dependencies
-        run: |
-          cd functions/ImageOrchestrator
-          dotnet restore
-      - name: Build Solution
-        run: |
-          cd functions/ImageOrchestrator
-          dotnet build --no-incremental
-      - name: Run Tests (if any)
-        run: |
-          cd functions/ImageOrchestrator
-          dotnet test --no-build --verbosity normal || true
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
-        with:
-          projectBaseDir: functions/ImageOrchestrator
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner
+      - name: SonarCloud Begin Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner begin /k:"renatocb_photo-upload-functions" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0"
+      - name: Build Solution
+        run: dotnet build PhotoUpload.sln --no-incremental
+      - name: Run Tests
+        run: dotnet test PhotoUpload.sln --no-build --verbosity normal
+      - name: SonarCloud End Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
   sonarcloud_analysis_workers:
     name: SonarCloud Analysis - Workers
@@ -46,24 +46,24 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
-      - name: Install dependencies
-        run: |
-          cd functions/ImageWorkers
-          dotnet restore
-      - name: Build Solution
-        run: |
-          cd functions/ImageWorkers
-          dotnet build --no-incremental
-      - name: Run Tests (if any)
-        run: |
-          cd functions/ImageWorkers
-          dotnet test --no-build --verbosity normal || true
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5.0.0
-        with:
-          projectBaseDir: functions/ImageWorkers
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner
+      - name: SonarCloud Begin Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner begin /k:"renatocb_photo-upload-functions" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0"
+      - name: Build Solution
+        run: dotnet build PhotoUpload.sln --no-incremental
+      - name: Run Tests
+        run: dotnet test PhotoUpload.sln --no-build --verbosity normal
+      - name: SonarCloud End Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 
   deploy_functions:
     name: Deploy Functions
