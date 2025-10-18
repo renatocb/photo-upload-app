@@ -34,7 +34,7 @@ namespace PhotoUpload.API.Controllers
                 return BadRequest("Nenhum arquivo enviado.");
 
             // Validar tipo de arquivo
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".pdf" };
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
             if (!allowedExtensions.Contains(fileExtension))
                 return BadRequest("Tipo de arquivo não permitido.");
@@ -99,7 +99,7 @@ namespace PhotoUpload.API.Controllers
         [HttpGet("sonar-ping")]
         public IActionResult SonarPing()
         {
-            return Ok("pong-sonar");
+            return Ok("sonar-ping");
         }
     }
 }
