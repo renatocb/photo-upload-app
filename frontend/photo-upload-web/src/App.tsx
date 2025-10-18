@@ -67,7 +67,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>📸 Photo Upload</h1>
-        <p>Faça upload de suas fotos favoritas....</p>
+        <p>Faça upload de suas fotos favoritas</p>
       </header>
 
       <main className="main-content">
