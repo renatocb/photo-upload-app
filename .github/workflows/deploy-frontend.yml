@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
     paths: ["frontend/**"]
+  pull_request:
+    branches: [main]
+    paths: ["frontend/**"]
   workflow_dispatch:
 
 jobs:
@@ -26,7 +29,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           cd frontend/photo-upload-web
-          npm test -- --watchAll=false --coverage || true
+          npm test -- --coverage --watchAll=false || true
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         with:
