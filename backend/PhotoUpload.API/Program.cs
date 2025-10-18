@@ -36,4 +36,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-//teste sonar
