@@ -16,7 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      - name: Unshallow fetch for SonarCloud
+        run: git fetch --unshallow
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
