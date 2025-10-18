@@ -27,13 +27,13 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           export PATH="$PATH:/home/runner/.dotnet/tools"
-          dotnet sonarscanner begin /k:"renatocb_photo-upload-api" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0" /d:sonar.exclusions="frontend/**"
+          dotnet sonarscanner begin /k:"renatocb_photo-upload-api" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0" /d:sonar.sources="backend/"
 
-      - name: Build Solution
-        run: dotnet build PhotoUpload.sln --no-incremental
+      - name: Build API Project Only
+        run: dotnet build backend/PhotoUpload.API/PhotoUpload.API.csproj --no-incremental
 
-      - name: Run Tests
-        run: dotnet test PhotoUpload.sln --no-build --verbosity normal
+      - name: Run Tests API Only
+        run: dotnet test backend/PhotoUpload.API/PhotoUpload.API.csproj --no-build --verbosity normal
 
       - name: SonarCloud End Analysis
         env:

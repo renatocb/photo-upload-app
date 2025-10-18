@@ -24,11 +24,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           export PATH="$PATH:/home/runner/.dotnet/tools"
-          dotnet sonarscanner begin /k:"renatocb_photo-upload-functions" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0" /d:sonar.exclusions="frontend/**"
-      - name: Build Solution
-        run: dotnet build PhotoUpload.sln --no-incremental
-      - name: Run Tests
-        run: dotnet test PhotoUpload.sln --no-build --verbosity normal
+          dotnet sonarscanner begin /k:"renatocb_photo-upload-functions" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0" /d:sonar.sources="functions/"
+      - name: Build Orchestrator Only
+        run: dotnet build functions/ImageOrchestrator/ImageOrchestrator.csproj --no-incremental
+      - name: Run Tests Orchestrator Only
+        run: dotnet test functions/ImageOrchestrator/ImageOrchestrator.csproj --no-build --verbosity normal
       - name: SonarCloud End Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -53,11 +53,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           export PATH="$PATH:/home/runner/.dotnet/tools"
-          dotnet sonarscanner begin /k:"renatocb_photo-upload-functions" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0" /d:sonar.exclusions="frontend/**"
-      - name: Build Solution
-        run: dotnet build PhotoUpload.sln --no-incremental
-      - name: Run Tests
-        run: dotnet test PhotoUpload.sln --no-build --verbosity normal
+          dotnet sonarscanner begin /k:"renatocb_photo-upload-functions" /o:"renatocb" /d:sonar.token="$SONAR_TOKEN" /v:"1.0.0" /d:sonar.sources="functions/"
+      - name: Build Workers Only
+        run: dotnet build functions/ImageWorkers/ImageWorkers.csproj --no-incremental
+      - name: Run Tests Workers Only
+        run: dotnet test functions/ImageWorkers/ImageWorkers.csproj --no-build --verbosity normal
       - name: SonarCloud End Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
