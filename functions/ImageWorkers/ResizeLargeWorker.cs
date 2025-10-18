@@ -77,7 +77,7 @@ namespace ImageWorkers
 
             await resizedBlobClient.UploadAsync(outputStream, overwrite: true);
 
-            _logger.LogInformation("📁 [LargeWorker] {Size} criado: {FileName}",
+            _logger.LogInformation("📁 [LargeWorker] {Size} criado - Teste: {FileName}",
                 sizeName.ToUpper(), resizedFileName);
         }
 
