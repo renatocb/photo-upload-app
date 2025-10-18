@@ -23,7 +23,7 @@ namespace ImageWorkers
         public async Task Run(
             [ServiceBusTrigger("image-resize-large", Connection = "AzureServiceBusConnectionString")] string myQueueItem)
         {
-            _logger.LogInformation("🔴 [LargeWorker] Iniciando processamento LARGE - teste 123456");
+            _logger.LogInformation("🔴 [LargeWorker] Iniciando processamento LARGE");
 
             try
             {
@@ -77,7 +77,7 @@ namespace ImageWorkers
 
             await resizedBlobClient.UploadAsync(outputStream, overwrite: true);
 
-            _logger.LogInformation("📁 [LargeWorker] {Size} criado - Teste: {FileName}",
+            _logger.LogInformation("📁 [LargeWorker] {Size} criado: {FileName}",
                 sizeName.ToUpper(), resizedFileName);
         }
 
