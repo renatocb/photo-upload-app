@@ -21,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
       - name: Install dotnet-sonarscanner
         run: dotnet tool install --global dotnet-sonarscanner
       - name: SonarCloud Begin Analysis
@@ -52,7 +52,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
       - name: Install dotnet-sonarscanner
         run: dotnet tool install --global dotnet-sonarscanner
       - name: SonarCloud Begin Analysis
@@ -76,6 +76,7 @@ jobs:
     name: Deploy Functions
     needs: [sonarcloud_analysis_orchestrator, sonarcloud_analysis_workers]
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
