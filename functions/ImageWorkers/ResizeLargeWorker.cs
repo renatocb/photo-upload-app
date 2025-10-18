@@ -23,7 +23,7 @@ namespace ImageWorkers
         public async Task Run(
             [ServiceBusTrigger("image-resize-large", Connection = "AzureServiceBusConnectionString")] string myQueueItem)
         {
-            _logger.LogInformation("🔴 [LargeWorker] Iniciando processamento LARGE");
+            _logger.LogInformation("🔴 [LargeWorker] Iniciando processamento LARGE - teste");
 
             try
             {
