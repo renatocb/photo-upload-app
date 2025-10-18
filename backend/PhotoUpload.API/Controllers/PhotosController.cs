@@ -93,20 +93,6 @@ namespace PhotoUpload.API.Controllers
             }
 
             return Ok(blobs);
-        }
-
-        // Novo endpoint apenas para teste do SonarCloud
-        [HttpGet("sonar-ping")]
-        public IActionResult SonarPing()
-        {
-            return Ok("sonar-ping");
-        }
-
-        // Novo endpoint apenas para teste do SonarCloud
-        [HttpGet("sonar-ping-teste")]
-        public IActionResult SonarPingTeste()
-        {
-            return Ok("sonar-ping-teste");
-        }
+        }        
     }
 }
